@@ -1,6 +1,6 @@
 # CogniChat - Memory-Powered AI Chatbot
 
-CogniChat is an intelligent chatbot built with Streamlit, Supabase, and DeepSeek API. It remembers your explicit instructions across sessions, making it a personalized conversational companion. Created by [navneetr7](https://github.com/navneetr7).
+CogniChat is an intelligent chatbot built with Streamlit, Supabase, and DeepSeek API. It remembers your explicit instructions across sessions, making it a personalized conversational companion. Created by [HeWhoCodes](https://github.com/navneetr7).
 
 ## Features
 
