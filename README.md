@@ -1,101 +1,115 @@
 # CogniChat - Memory-Powered AI Chatbot
 
-CogniChat is an intelligent chatbot that remembers user inputs across sessions, built with Streamlit, Supabase, and DeepSeek API. It supports commands like "remember this:" to store explicit memories and "what i asked you to remember?" to retrieve them, with a clean UI and persistent storage.
+CogniChat is an intelligent chatbot built with Streamlit, Supabase, and DeepSeek API. It remembers your explicit instructions across sessions, making it a personalized conversational companion. Created by [navneetr7](https://github.com/navneetr7).
 
 ## Features
-- Memory Persistence: Stores user memories in Supabase with tags (e.g., "explicit").
-- Command-Based Interaction: Supports commands like /joke, remember this:, and what i asked you to remember?.
-- Sentiment-Aware Responses: Adjusts tone (cheerful, empathetic, neutral) based on input.
-- Customizable Response Length: Short, medium, or long replies via a sidebar slider.
+
+- **Persistent Memory**: Save and recall explicit memories using commands like `remember this:` and `what i asked you to remember?`.
+- **Sentiment-Aware Responses**: Adjusts tone (cheerful, empathetic, neutral) based on your input.
+- **Command Support**: Includes `/joke`, `/summary`, `time`, and `remind me`.
+- **Web Interface**: Powered by Streamlit for an interactive UI.
+- **Vector Embeddings**: Uses SentenceTransformers for semantic memory search.
 
 ## Tech Stack
-- Frontend: Streamlit
-- Backend: Python, Supabase (PostgreSQL with vector extension)
-- AI: DeepSeek API
-- Embedding: SentenceTransformers (all-MiniLM-L6-v2)
+
+- **Frontend**: [Streamlit](https://streamlit.io/)
+- **Backend**: Python, [Supabase](https://supabase.com/) (PostgreSQL with vector support)
+- **AI**: [DeepSeek API](https://deepseek.com/)
+- **Embeddings**: [SentenceTransformers](https://www.sbert.net/) (`all-MiniLM-L6-v2`)
 
 ## Prerequisites
-- Python 3.9+
+
+- Python 3.8+
 - Git
 - Supabase account and project
 - DeepSeek API key
 
 ## Setup
-1. Clone the Repository:
+
+1. **Clone the Repository**:
+   ```bash
    git clone https://github.com/navneetr7/cognichat.git
    cd cognichat
+   ```
 
-2. Install Dependencies:
-   Install required Python packages:
-   pip install streamlit python-dotenv supabase requests textblob sentence-transformers torch
+2. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   If `requirements.txt` isn’t present, install manually:
+   ```bash
+   pip install streamlit python-dotenv supabase requests textblob sentence-transformers
+   ```
 
-3. Configure Environment Variables:
-   Create a .env file in the project root:
-   echo SUPABASE_URL=your-supabase-url > .env
-   echo SUPABASE_KEY=your-supabase-key >> .env
-   echo DEEPSEEK_API_KEY=your-deepseek-api-key >> .env
-   Replace your-supabase-url, your-supabase-key, and your-deepseek-api-key with your credentials.
-   Note: .env is ignored by .gitignore for security.
+3. **Configure Environment Variables**:
+   Create a `.env` file in the root directory:
+   ```plaintext
+   SUPABASE_URL=your-supabase-url
+   SUPABASE_KEY=your-supabase-key
+   DEEPSEEK_API_KEY=your-deepseek-api-key
+   ```
+   Get these from your Supabase project and DeepSeek account.
 
-4. Set Up Supabase:
-   Create a Supabase project at supabase.com.
-   Enable the pgvector extension in your database:
-   Go to SQL Editor and run:
-   CREATE EXTENSION IF NOT EXISTS vector;
-   Create the memories table:
-   CREATE TABLE memories (
-     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-     user_id UUID REFERENCES auth.users(id),
-     memory_text TEXT NOT NULL,
-     embedding VECTOR(384),
-     metadata JSONB,
-     created_at TIMESTAMP DEFAULT NOW()
-   );
-   Create the match_memories function for vector search:
-   CREATE OR REPLACE FUNCTION match_memories(
-     query_embedding VECTOR(384),
-     match_threshold FLOAT,
-     match_count INT,
-     user_id_filter UUID,
-     tag_filter TEXT DEFAULT NULL
-   )
-   RETURNS TABLE (id UUID, memory_text TEXT, metadata JSONB) AS $$
-   BEGIN
-     RETURN QUERY
-     SELECT m.id, m.memory_text, m.metadata
-     FROM memories m
-     WHERE m.user_id = user_id_filter
-     AND (tag_filter IS NULL OR m.metadata->>'tag' = tag_filter)
-     AND m.embedding <=> query_embedding < match_threshold
-     ORDER BY m.embedding <=> query_embedding
-     LIMIT match_count;
-   END;
-   $$ LANGUAGE plpgsql;
-
-## Running the App
-1. Start the App:
+4. **Run the App**:
+   ```bash
    python run.py
-   Or directly with Streamlit:
-   streamlit run app.py
-
-2. Access the App:
-   Open your browser to http://localhost:8501.
-   Sign up or log in to start chatting.
+   ```
+   Open your browser to [http://localhost:8501](http://localhost:8501).
 
 ## Usage
-- Store a Memory: remember this: I love coding
-- Retrieve Memories: what i asked you to remember?
-- Get a Joke: /joke
-- Check Time: what’s the time?
+
+### Sign Up / Sign In:
+Use the sidebar to create an account or log in.
+
+### Chat Commands:
+- `remember this: I love coding` - Stores a memory.
+- `what i asked you to remember?` - Lists stored memories.
+- `remind me: Call mom` - Saves a reminder (no timers yet).
+- `/joke` - Hear a joke!
+- `time` - Get the current time.
+
+#### Example:
+```text
+User: remember this: I have diabetes
+CogniChat: Got it! I’ll remember: 'I have diabetes'.
+User: what i asked you to remember?
+CogniChat: Here’s what I remember you asked me to store:
+- I have diabetes (saved 2025-03-30T18:14:08)
+```
+
+## Project Structure
+```text
+cognichat/
+├── app.py          # Main Streamlit app
+├── run.py          # Entry point script
+├── .gitignore      # Excludes .env, __pycache__, etc.
+└── README.md       # This file
+```
 
 ## Contributing
-Feel free to fork this repo, submit issues, or send pull requests. Ideas for improvement:
+
+1. Fork the repo.
+2. Create a branch:
+   ```bash
+   git checkout -b feature-name
+   ```
+3. Commit changes:
+   ```bash
+   git commit -m "Add feature"
+   ```
+4. Push to your fork:
+   ```bash
+   git push origin feature-name
+   ```
+5. Open a Pull Request.
+
+## Next Steps
+
 - Async embedding for faster memory storage.
 - Memory deletion/editing commands.
-- UI theme customization.
+- UI theme switcher (light/dark mode).
 
 ## License
-MIT License - feel free to use and modify this code!
+MIT License - feel free to use, modify, and distribute!
 
-## Author
-Built by navneetr7 (https://github.com/navneetr7).
+Happy coding with CogniChat! 🚀
