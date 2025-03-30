@@ -1,0 +1,6 @@
+streamlit
+supabase
+sentence-transformers
+python-dotenv
+requests
+textblob
